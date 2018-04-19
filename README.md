@@ -43,9 +43,12 @@ For convenience, all automata will use integers for states and letters of an aut
 ```JSON
 // This DFA's language accept strings that end with "00"
 {
-    "Q": [0, 1, 2],  // States (q0, q1, ...)
-    "S": [0, 1],     // The alphabet (Σ)
-    "D": {           // The transformation diagram (δ)
+    // States (q0, q1, ...)
+    "Q": [0, 1, 2],
+    // The alphabet (Σ)
+    "S": [0, 1],
+    // The transformation diagram (δ)
+    "D": {
         "0 0": 1,
         "0 1": 0,
         "1 0": 2,
@@ -53,8 +56,10 @@ For convenience, all automata will use integers for states and letters of an aut
         "2 0": 2,
         "2 1": 0
     },
-    "q0": 0,         // The entry state
-    "F": [2]         // Final states
+    // The entry state
+    "q0": 0,
+    // Final states
+    "F": [2]
 }
 ```
 
@@ -63,12 +68,13 @@ Note that comments are not recommended in JSON, and they have actually been remo
 #### 2. How to represent other automata?
 
 ```JSON
-// This ε-NFA's language accept strings that 
+// This ε-NFA's language is equal to regex ((ε+b)c*(ε+(a+c)))*(ε+b)+c
 {
     "Q": [0, 1, 2],
     "S": [0, 1, 2],
+    // Use null to indicate null string (ε) and null set (Φ)
     "D": {
-        "0 null": [1, 2], // Use null to indicate null string (ε) and null set (Φ)
+        "0 null": [1, 2],
         "0 0": null,
         "0 1": [1],
         "0 2": [2],
@@ -84,5 +90,9 @@ Note that comments are not recommended in JSON, and they have actually been remo
     "q0": 0,
     "F": [2]
 }
+```
+
+```JSON
+// A PDA
 ```
 
