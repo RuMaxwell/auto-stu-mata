@@ -1,43 +1,29 @@
-const DFA = {
-  'Q': [0, 1, 2],
-  'S': [0, 1],
-  'D': {
-    '0 0': 1,
-    '0 1': 0,
-    '1 0': 2,
-    '1 1': 0,
-    '2 0': 2,
-    '2 1': 0
-  },
-  'q0': 0,
-  'F': [2]
-};
+class DFA {
+  constructor (dfa_obj) {
+    this.Q = dfa_obj.Q;
+    this.S = dfa_obj.S;
+    this.D = dfa_obj.D;
+    this.q0 = dfa_obj.q0;
+    this.F = dfa_obj.F;
+  }
 
-const has = function (arr, val) {
-  for (var i = 0; i < arr.length; i++) {
-    if (arr[i] === val) {
-      return true;
+  transd (q, a) {
+    if (has(this.Q, q) && has(this.S, a)) {
+      var key = q.toString() + ' ' + a.toString();
+      return this.D.get(key);
+    }
+    else {
+      return undefined;
     }
   }
-  return false;
-};
 
-const DFA_transd = function (dfa, q, a) {
-  if (has(DFA['Q'], q) && has(DFA['S'], a)) {
-    var key = q.toString() + ' ' + a.toString();
-    return DFA['D'][key];
+  xtransd (q, w) {
+    var wf = w.slice(0, w.length - 1);
+    var a = w[w.length - 1];
+    return w.length === 0 ? q : this.transd(this.xtransd(q, wf), a);
   }
-  else {
-    return undefined;
+
+  accept (w) {
+    return has(this.F, this.xtransd(this.q0, w)) ? true : false;
   }
-};
-
-const DFA_xtransd = function (dfa, q, w) {
-  var wf = w.slice(0, w.length - 1);
-  var a = w[w.length - 1];
-  return w.length === 0 ? q : DFA_transd(DFA, DFA_xtransd(DFA, q, wf), a);
-};
-
-const DFA_accept = function (dfa, w) {
-  return has(DFA['F'], DFA_xtransd(DFA, DFA['q0'], w)) ? true : false;
-};
+}

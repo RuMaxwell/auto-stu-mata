@@ -24,9 +24,9 @@ The software is bound for teachers and students to use as a reference for the aq
     * A Javascript implementation of the algorithms, using webpages to distribute, or
     * A client written with [Electron](https://electronjs.org/)
   * Offline
-    * A offline client written with Electron
+    * An offline client written with Electron
 
-By default, automata are displayed in the form of **transformation diagram**, with circles indicate states, and arrows indicate letters *(figure 1)*. But you can choose to display them by **transformation table** *(figure 2)*, or both.
+By default, automata are displayed in the form of **transformation diagram**, with circles indicate states, and arrows indicate letters (or *symbols*) *(figure 1)*. But you can choose to display them by **transformation table** *(figure 2)*, or both.
 
 ![figure 1: Transformation Diagram]()
 
@@ -101,6 +101,6 @@ Note that comments are not recommended in JSON, and they have actually been remo
 ```
 
 ```JSON
-// A PDA
+// A DPDA
 ```
 

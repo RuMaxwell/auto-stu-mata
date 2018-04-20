@@ -3,14 +3,16 @@
 <head>
 	<title>TESTS</title>
 	<meta charset="utf-8" />
+	<script type="text/javascript" src="basic_utils.js"></script>
 	<script type="text/javascript" src="DFA.js"></script>
+	<script type="text/javascript" src="automata.js"></script>
 	<script type="text/javascript" src="main.js"></script>
 </head>
 <body>
 	<input id="dfa" type="text" />
-	<button onclick="main('DFA', document.getElementById('DFA').value)">Accept?</button>
+	<button onclick="main('dfa', document.getElementById('dfa').value)">Accept?</button>
 	<br />
 	<input id="dpda" type="text" />
-	<button onclick="main('DPDA', document.getElementById('DPDA').value)">Accept?</button>
+	<button onclick="main('dpda', document.getElementById('dpda').value)">Accept?</button>
 </body>
 </html>
