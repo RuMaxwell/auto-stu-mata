@@ -34,6 +34,14 @@ By default, automata are displayed in the form of **transformation diagram**, wi
 
 
 
+
+
+## Developer's Guide
+
+We use [ESLint](https://blog.csdn.net/haoshidai/article/details/52833377) coding standard. It includes using `let/const` instead of `var`, using function statement instead of function expression, using lambda expression instead of function expression, using class instead of prototype, using 2 spaces to indent, using single-quote to quote a string, using LF to end a line, and so on.
+
+
+
 ### Examples
 
 For convenience, all automata will use integers for states and letters of an automata.

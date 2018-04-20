@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>TEST DFA</title>
+	<title>TESTS</title>
 	<meta charset="utf-8" />
 	<script type="text/javascript" src="DFA.js"></script>
 	<script type="text/javascript" src="main.js"></script>
 </head>
 <body>
-	<input id="word" type="text" />
-	<button onclick="main(document.getElementById('word').value)">Accept?</button>
+	<input id="dfa" type="text" />
+	<button onclick="main('DFA', document.getElementById('DFA').value)">Accept?</button>
+	<br />
+	<input id="dpda" type="text" />
+	<button onclick="main('DPDA', document.getElementById('DPDA').value)">Accept?</button>
 </body>
 </html>
