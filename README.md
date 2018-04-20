@@ -70,11 +70,13 @@ For convenience, all automata will use integers for states and letters/symbols o
 ```
 
 **Description**: This DFA's language accept strings that end with "00", where
-	"Q" is the states (q0, q1, ...),
-	"S" is the alphabet (Σ),
-	"D" is the transformation diagram (δ),
-	"q0" is the entry state,
-	"F" is the final states.
+
+* "Q" is the states (q0, q1, ...),
+* "S" is the alphabet (Σ),
+* "D" is the transformation diagram (δ),
+* "q0" is the entry state,
+* "F" is the final states.
+
 This will be parsed into an instance of DFA class, and the transformation diagram will be passed directly to construct a new Map instance.
 
 #### 2. How to represent other automata?
