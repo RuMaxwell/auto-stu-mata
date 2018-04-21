@@ -73,11 +73,11 @@ For convenience, all automata will use integers for states and letters/symbols o
 
 * "Q" is the states (q0, q1, ...),
 * "S" is the alphabet (Σ),
-* "D" is the transformation diagram (δ),
+* "D" is the transfer diagram (δ),
 * "q0" is the entry state,
 * "F" is the final states.
 
-This will be parsed into an instance of DFA class, and the transformation diagram will be passed directly to construct a new Map instance.
+This will be parsed into an instance of DFA class, and the transfer diagram will be passed directly to construct a new Map instance.
 
 #### 2. How to represent other automata?
 
@@ -104,7 +104,7 @@ This will be parsed into an instance of DFA class, and the transformation diagra
 }
 ```
 
-**Description**: This ε-NFA's language is equal to regex `((ε+b)c*(ε+(a+c)))*(ε+b)+c`. In the transformation diagram, we use `null` to represent null string (ε) and null set (Φ).
+**Description**: This ε-NFA's language is equal to regex `((ε+b)c*(ε+(a+c)))*(ε+b)+c`. In the transfer diagram, we use `null` to represent null string (ε) and null set (Φ).
 
 
 
