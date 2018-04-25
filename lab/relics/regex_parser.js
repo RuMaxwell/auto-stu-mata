@@ -84,52 +84,77 @@ function regex_justify(regex) {
 
   const getPriority = (oprt1, oprt2) => priorityTable[oprt_id[oprt1]][oprt_id[oprt2]];
 
+  // Remove priority and construct an s-expression
   regex = (() => {
-    let m = [ '#' ];
-    let n = [];
-    const top = lst => lst[lst.length - 1];
-
-    const dealWithOprt = (op) => {
-      if (op === '+' || op === ',') {
-        let b = n.pop();
-        let a = n.pop();
-        return `(${op} ${a} ${b})`;
+    let top = lst => lst[lst.length - 1];
+    m = ['#'];
+    n = [];
+    const dealWithOprt = (cur, mPush, next=undefined) => {
+      m.pop();
+      if (cur === '+' || cur === ',') {
+        let ops = [n.pop(), n.pop()];
+        [ops[0], ops[1]] = [ops[1], ops[0]];
+        let s = `(${cur} ${ops[0]} ${ops[1]})`;
+        n.push(s);
+        if (mPush) {
+          m.push(next);
+        }
       }
-      else if (op === '*') {
-        let a = n.pop();
-        return `(* ${a})`;
+      else if (cur === '*') {
+        let op = n.pop();
+        let s = `(* ${op})`;
+        n.push(s);
+        if (mPush) {
+          m.push(next);
+        }
+      }
+      else {
+        console.error('Unexpected priority.');
       }
     };
-
-    let i = 0;
-    while (regex[i] !== '#' || top(m) !== '#') {
-      if (is_symbol(regex[i])) {
-        n.push(regex[i]);
-        i++;
+    for (let i = 0; i < regex.length && m.length !== 0; i++) {
+      if (regex[i] === undefined || regex[i] === '#') {
+        while (top(m) !== '#') {
+          let cur = top(m);
+          dealWithOprt(cur, false);
+        }
+        break;
       }
-      else if (is_oprtor(regex[i])) {
+      if (is_oprtor(regex[i])) {
         let cur = top(m);
         let prio = getPriority(cur, regex[i]);
         if (prio === 0) {
-          console.error("Syntax error in regex.");
-          i++;
+          console.error('Syntax error in regex');
         }
         else if (prio === 1) {
-          n.push(dealWithOprt(cur));
-          m.pop();
+          dealWithOprt(cur, true, regex[i]);
         }
         else if (prio === 2) {
           m.push(regex[i]);
-          i++;
         }
         else if (prio === 3) {
           m.pop();
-          i++;
+        }
+        else {
+          if (cur === ')' && regex[i] === '(') {
+            console.error('Consecutive operands without concatination operator.')
+          }
+          else if (cur === '(' && regex[i] === '#') {
+            console.error('Interminated parenthesis at the end of regex');
+          }
+          else {
+            console.error('Unexpected symbol in regex.');
+          }
         }
       }
+      else if (is_symbol(regex[i])) {
+        n.push(regex[i]);
+      }
+      else {
+        console.error('Unexpected symbol in regex.');
+      }
     }
-
-    return top(n);
+    return n.pop();
   })();
 
   return regex;

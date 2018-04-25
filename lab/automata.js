@@ -32,28 +32,28 @@ const NFA_parse = function (nfa_raw_obj) {
   //
 };
 
-const NFA_instance = new NFA(NFA_parse({
-  Q: [
-    { value: 'p', final: false },
-    { value: 'q', final: true },
-    { value: 'r', final: false },
-    { value: 's', final: true }
-  ],
-  S: [
-    { value: '0' },
-    { value: '1' }
-  ],
-  D: [
-    { value: 'p 0', result: 'q' },
-    { value: 'p 0', result: 's' },
-    { value: 'p 1', result: 'q' },
-    { value: 'q 0', result: 'r' },
-    { value: 'q 1', result: 'q' },
-    { value: 'q 1', result: 'r' },
-    { value: 'r 0', result: 's' },
-    { value: 'r 1', result: 'p' },
-    { value: 's 0', result: '*' },
-    { value: 's 1', result: 'p' }
-  ],
-  q0: { value: 'p' }
-}));
+// const NFA_instance = new NFA(NFA_parse({
+//   Q: [
+//     { value: 'p', final: false },
+//     { value: 'q', final: true },
+//     { value: 'r', final: false },
+//     { value: 's', final: true }
+//   ],
+//   S: [
+//     { value: '0' },
+//     { value: '1' }
+//   ],
+//   D: [
+//     { value: 'p 0', result: 'q' },
+//     { value: 'p 0', result: 's' },
+//     { value: 'p 1', result: 'q' },
+//     { value: 'q 0', result: 'r' },
+//     { value: 'q 1', result: 'q' },
+//     { value: 'q 1', result: 'r' },
+//     { value: 'r 0', result: 's' },
+//     { value: 'r 1', result: 'p' },
+//     { value: 's 0', result: '*' },
+//     { value: 's 1', result: 'p' }
+//   ],
+//   q0: { value: 'p' }
+// }));
