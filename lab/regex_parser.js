@@ -1,30 +1,39 @@
 /*
- * Parse regexes to s-object for convience of later converting them to automata.
- * s-object means a tree-like list that if traversed inorderedly, will produce the same string as the regex.
+ * Parse regexes to s-expression for convience of later converting them to automata.
+ * s-expression is a type of prefix notation with parentheses to mark the start and end point of each layer.
+ * It precisely represent a tree that if traversed inorderedly, will produce the same string as the infix regex.
  * 
  * Example:
- * (0+1)*1*(0+1+2) => (0+1)*1(0+1+2) => '(- (* (+ 0 1)) (* 1) (+ (+ 0 1) 2))'
- *  => ['-', ['-', ['*', ['+', '0', '1']], ['*', '1']], ['+', ['+', '0', '1'], '2']]
+ * (00+001)*+1*(0+1+2) => (+ (* (+ (, 0 0) (, (, 0 0) 1))) (, (* 1) (+ (+ 0 1) 2)))
  * 
  * How it works:
- *  This parser bases on two stacks, one is for the operators, the other is for the operands.
- *  When working, it scans the regex string. Whenever it comes up with:
- *    '('         => Directly push it to the operand stack.
- *    [0-9a-zA-Z] => Considered as a symbol, push it to the operand stack.
- *    '+'         => Push it to the operator stack.
- *    '*'         => Pop the operand stack, quote the popped string with (*) and push it
- *                   back to the operand stack.
- *    ')'         => Pop the operand stack until the first '(' is popped. Check how many
- *                   operands have been popped. Then pop the operator stack, see if the
- *                   number of operands match the popped operator. If is, quote the ope-
- *                   rands with the operator and push it back to the operand stack. If
- *                   isn't, strip the parentheses and then push the original operands
- *                   back to the operand stack.
- *  Each time the operator stack is pushed, a check will be made. This can find syntax
- *    mistakes instantly.
- *  When it scans to the end of the regex string, a check will be made. If the operator stack
- *    is null and the operand stack contains no parentheses, the operands will be finally
- *    quoted by concatination operator.
+ *  It is similiar to the resolving of an arithmetic expression.
+ *  This parser bases on two stacks. One is for the operators (initialized with a #), and the other is for the operands.
+ * 
+ *  When working, it scans the regex string one char by one char. Whenever it comes up with:
+ *    [+,*()#]    => These are operators
+ *    [0-9a-zA-Z] => These are symbols
+ *
+ *  The operators have their priority order, and this is represented as the priority table:
+ * ┌───┬───┬───┬───┬───┬───┬───┐
+ * │   │ + │ , │ * │ ( │ ) │ # │  This table's first line (FL) and the first column (FC) contain
+ * ├───┼───┼───┼───┼───┼───┼───┤  all the six operators. When scanning, the operator in FC is
+ * │ + │ 1 │ 2 │ 2 │ 2 │ 1 │ 1 │  before the operator in FL. The numbers are:
+ * ├───┼───┼───┼───┼───┼───┼───┤  - 0: Syntax error.
+ * │ , │ 1 │ 1 │ 2 │ 2 │ 1 │ 1 │  - 1: FC > FL. The newly scanned operator is to be pushed after
+ * ├───┼───┼───┼───┼───┼───┼───┤                the current-top operator is calculated.
+ * │ * │ 1 │ 1 │ 1 │ 2 │ 1 │ 1 │  - 2: FC < FL. The newly scanned operator can be directly pushed
+ * ├───┼───┼───┼───┼───┼───┼───┤                into the operator stack.
+ * │ ( │ 2 │ 2 │ 2 │ 2 │ 3 │ 0 │  - 3: FC = FL. Both of the two operators will be thrown.
+ * ├───┼───┼───┼───┼───┼───┼───┤
+ * │ ) │ 1 │ 1 │ 1 │ 0 │ 1 │ 1 │  e.g. )( => 0 => syntax error, we don't expect two operands to
+ * ├───┼───┼───┼───┼───┼───┼───┤                  be directly concatinated.
+ * │ # │ 2 │ 2 │ 2 │ 2 │ 0 │ 3 │       #) => 0 => syntax error, an unbalanced parenthesis.
+ * └───┴───┴───┴───┴───┴───┴───┘
+ * 
+ *  The way to deal with an operator when get 1 from the priority table:
+ *  1) Calculate the current-top operator and pop it. Push the result to the operand stack.
+ *  2) Continue to compare the current scanned operator and the current-top operator. Repeat the match.
  */
 
 /**
@@ -93,10 +102,18 @@ function regex_justify(regex) {
       if (op === '+' || op === ',') {
         let b = n.pop();
         let a = n.pop();
+        if (b === undefined || a === undefined) {
+          console.error(`Syntax error in regex: cannot get enough operands for operator ${op}.`);
+          return undefined;
+        }
         return `(${op} ${a} ${b})`;
       }
       else if (op === '*') {
         let a = n.pop();
+        if (a === undefined) {
+          console.error('Syntax error in regex: no operand for operator *.');
+          return undefined;
+        }
         return `(* ${a})`;
       }
     };
@@ -111,11 +128,17 @@ function regex_justify(regex) {
         let cur = top(m);
         let prio = getPriority(cur, regex[i]);
         if (prio === 0) {
-          console.error("Syntax error in regex.");
-          i++;
+          console.error(`Syntax error in regex at ${i} (${regex[i]}).`);
+          return undefined;
         }
         else if (prio === 1) {
-          n.push(dealWithOprt(cur));
+          let res = dealWithOprt(cur);
+          if (res === undefined) {
+            return undefined;
+          }
+          else {
+            n.push(res);
+          }
           m.pop();
         }
         else if (prio === 2) {
@@ -127,56 +150,14 @@ function regex_justify(regex) {
           i++;
         }
       }
+      else {
+        console.error(`Cannot resolve symbol at ${i} (${regex[i]})`);
+        return undefined;
+      }
     }
 
     return top(n);
   })();
 
   return regex;
-}
-
-/**
- * Parse a given regex to s-expression
- * 
- * @param {string} regex The regex
- * @returns {Array} s-object
- */
-function regex_parse(regex) {
-  const is_oprtor = char => {
-    return (char === '-' || char === '*' || char === '+');
-  };
-
-  var oprtor_stack = [];
-  var oprand_stack = [];
-  var operator = '';
-  var oprds = [];
-
-  var phcnt = 0;
-
-  var s_obj = [];
-
-  for (var i = 0; i < regex.length; i++) {
-    if (regex[i] === '(') {
-      phcnt++;
-    }
-    else if (regex[i] === ')') {
-      phcnt--;
-      operator = oprtor_stack.pop();
-      if (operator == '+') {
-        oprds = [oprand_stack.pop(), oprand_stack.pop()];
-        // Generate string "['+', operand1, operand2]"
-        var selector = `[\'+\', ${[...oprds]}]`;
-        oprand_stack.push(`${selector}`);
-      }
-    }
-    else if (is_symbol(regex[i])) {
-      oprand_stack.push(regex[i]);
-    }
-    else if (is_oprtor(regex[i])) {
-      oprtor_stack.push(regex[i]);
-    }
-    else {
-      console.error('Regex parser error: cannot resolve symbol \'' + regex[i] + '\'');
-    }
-  }
 }
